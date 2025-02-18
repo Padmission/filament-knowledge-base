@@ -209,7 +209,6 @@ class KnowledgeBasePanel extends Panel
                         Authenticate::class,
                     ])
             )
-
             ->when(
                 ! $this->shouldDisableBackToDefaultPanelButton(),
                 fn (Panel $panel) => $panel
@@ -229,11 +228,15 @@ class KnowledgeBasePanel extends Panel
         ;
     }
 
-    protected function buildNavigationItem(Documentable $documentable)
+    protected function buildNavigationItem(Documentable $documentable): NavigationItem
     {
+        $hasGroupIcon = $this->predefinedNavigationGroups()
+            ->first(fn (NavigationGroup $group) => $group->getLabel() === $documentable->getGroup())
+            ?->getIcon();
+
         return NavigationItem::make($documentable->getTitle())
             ->group($documentable->getGroup())
-            ->icon($documentable->getIcon())
+            ->icon(! $hasGroupIcon ? $documentable->getIcon() : null)
             ->sort($documentable->getOrder())
             ->childItems(
                 KnowledgeBase::model()::query()
@@ -266,22 +269,50 @@ class KnowledgeBasePanel extends Panel
             ;
         }
 
-        $documentables
-            ->filter(fn (Documentable $documentable) => $documentable->isRegistered())
+        $predefinedNavigationGroups = $this->predefinedNavigationGroups();
+
+        $documentables->filter(fn (Documentable $documentable) => $documentable->isRegistered())
             ->filter(fn (Documentable $documentable) => $documentable->getParent() === null)
             ->groupBy(fn (Documentable $documentable) => $documentable->getGroup())
-            ->map(
-                fn (Collection $items, string $key) => empty($key)
-                    ? $items->map(fn (Documentable $documentation) => $this->buildNavigationItem($documentation))
-                    : NavigationGroup::make($key)
-                        ->items(
-                            $items
-                                ->sort(fn (Documentable $d1, Documentable $d2) => $d1->getOrder() <=> $d2->getOrder())
-                                ->map(fn (Documentable $documentable) => $this->buildNavigationItem($documentable))
-                                ->toArray()
-                        )
-            )
+            ->map(function (Collection $items, string $groupName) use ($predefinedNavigationGroups) {
+                $navigationItems = $items->sort(fn (Documentable $d1, Documentable $d2) => $d1->getOrder() <=> $d2->getOrder())
+                    ->map(fn (Documentable $documentable) => $this->buildNavigationItem($documentable))
+                    ->toArray();
+
+                if (empty($groupName)) {
+                    return $navigationItems;
+                }
+
+                /** @var NavigationGroup|null $predefinedGroup */
+                $predefinedGroup = $predefinedNavigationGroups->first(fn (NavigationGroup $group) => $group->getLabel() === $groupName);
+
+                if ($predefinedGroup) {
+                    return $predefinedGroup->items($navigationItems);
+                }
+
+                return NavigationGroup::make($groupName)
+                    ->items($navigationItems);
+            })
             ->flatten()
+            ->sort(function ($a, $b) use ($predefinedNavigationGroups) {
+
+                $aLabel = $a instanceof NavigationGroup ? $a->getLabel() : '';
+                $bLabel = $b instanceof NavigationGroup ? $b->getLabel() : '';
+
+                $aIndex = $predefinedNavigationGroups->search(fn (NavigationGroup $group) => $group->getLabel() === $aLabel);
+                $bIndex = $predefinedNavigationGroups->search(fn (NavigationGroup $group) => $group->getLabel() === $bLabel);
+
+                // If group is not found in predefined groups, move it to the end
+                if ($aIndex === false) {
+                    $aIndex = PHP_INT_MAX;
+                }
+
+                if ($bIndex === false) {
+                    $bIndex = PHP_INT_MAX;
+                }
+
+                return $aIndex <=> $bIndex;
+            })
             ->each(fn ($item) => match (true) {
                 $item instanceof NavigationItem => $builder->item($item),
                 $item instanceof NavigationGroup => $builder->group($item),
@@ -289,5 +320,10 @@ class KnowledgeBasePanel extends Panel
         ;
 
         return $builder;
+    }
+
+    private function predefinedNavigationGroups(): Collection
+    {
+        return collect($this->getNavigationGroups());
     }
 }
