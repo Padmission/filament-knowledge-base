@@ -48,18 +48,54 @@ class KnowledgeBasePanel extends Panel
     use HasArticleClass;
 
     protected bool $guestAccess = false;
-
     protected static bool $syntaxHighlighting = false;
-
     protected bool $disableTableOfContents = false;
-
     protected TableOfContentsPosition $tableOfContentsPosition = TableOfContentsPosition::End;
+    protected array $globallySearchableAttributes = ['title', 'content'];
+    protected $globalSearchResultTitleCallback = null;
+    protected $globalSearchResultDetailsCallback = null;
 
     public function __construct()
     {
         $this->id(
             config('filament-knowledge-base.panel.id', 'knowledge-base')
         );
+    }
+
+    public function globallySearchableAttributes(array $attributes): static
+    {
+        $this->globallySearchableAttributes = $attributes;
+
+        return $this;
+    }
+
+    public function getGloballySearchableAttributes(): array
+    {
+        return $this->evaluate($this->globallySearchableAttributes);
+    }
+
+    public function globalSearchResultTitle(callable $callback): static
+    {
+        $this->globalSearchResultTitleCallback = $callback;
+
+        return $this;
+    }
+
+    public function getGlobalSearchResultTitleCallback(): ?callable
+    {
+        return $this->globalSearchResultTitleCallback;
+    }
+
+    public function globalSearchResultDetails(callable $callback): static
+    {
+        $this->globalSearchResultDetailsCallback = $callback;
+
+        return $this;
+    }
+
+    public function getGlobalSearchResultDetailsCallback(): ?callable
+    {
+        return $this->globalSearchResultDetailsCallback;
     }
 
     public function guestAccess(bool $condition = true): static
