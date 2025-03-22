@@ -436,6 +436,8 @@ The KnowledgeBase panel comes with powerful global search capabilities that can 
 You can specify which attributes of your documentation model should be searchable:
 
 ```php
+use Guava\FilamentKnowledgeBase\Filament\Panels\KnowledgeBasePanel;
+
 KnowledgeBasePanel::make()
     ->globallySearchableAttributes(['title', 'content', 'group'])
 ```
@@ -447,6 +449,8 @@ By default, the panel searches only in `title` and `content` fields.
 You can customize how search result titles are displayed using a callback function:
 
 ```php
+use Guava\FilamentKnowledgeBase\Filament\Panels\KnowledgeBasePanel;
+
 KnowledgeBasePanel::make()
     ->globalSearchResultTitle(function ($record) {
         return str($record->slug)
@@ -463,6 +467,8 @@ This example transforms slugs like "getting-started/installation" into "Getting 
 Control what additional information appears below each search result:
 
 ```php
+use Guava\FilamentKnowledgeBase\Filament\Panels\KnowledgeBasePanel;
+
 KnowledgeBasePanel::make()
     ->globalSearchResultDetails(function ($record) {
         return [
