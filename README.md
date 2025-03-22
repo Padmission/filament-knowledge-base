@@ -427,6 +427,50 @@ KnowledgeBasePanel::configureUsing(
 );
 ```
 
+# Search Customization
+
+The KnowledgeBase panel comes with powerful global search capabilities that can be easily customized to fit your specific needs. This document explains the available customization options for search attributes, result titles, and result details.
+
+## Customizing Searchable Attributes
+
+You can specify which attributes of your documentation model should be searchable:
+
+```php
+KnowledgeBasePanel::make()
+    ->globallySearchableAttributes(['title', 'content', 'group'])
+```
+
+By default, the panel searches only in `title` and `content` fields.
+
+## Customizing Search Result Titles
+
+You can customize how search result titles are displayed using a callback function:
+
+```php
+KnowledgeBasePanel::make()
+    ->globalSearchResultTitle(function ($record) {
+        return str($record->slug)
+            ->replace('/', ' -> ')
+            ->replace('-', ' ')
+            ->title();
+    })
+```
+
+This example transforms slugs like "getting-started/installation" into "Getting Started -> Installation".
+
+## Customizing Search Result Details
+
+Control what additional information appears below each search result:
+
+```php
+KnowledgeBasePanel::make()
+    ->globalSearchResultDetails(function ($record) {
+        return [
+            'Summary' => Str::limit(strip_tags($record->content), 150),
+        ];
+    })
+```
+
 #### Change brand name
 
 For example to change the default brand name/title (displayed in the top left) of the panel, you can do:
