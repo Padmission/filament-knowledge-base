@@ -19,9 +19,7 @@ class DocumentationResource extends Resource
     {
         $panel = KnowledgeBase::panel();
 
-        if (method_exists($panel, 'getGloballySearchableAttributes')) {
-            return $panel->getGloballySearchableAttributes();
-        }
+        return $panel->getGloballySearchableAttributes();
 
         return ['title', 'content'];
     }
