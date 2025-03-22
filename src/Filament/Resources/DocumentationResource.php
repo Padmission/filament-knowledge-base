@@ -17,6 +17,12 @@ class DocumentationResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
+        $panel = KnowledgeBase::panel();
+
+        if (method_exists($panel, 'getGloballySearchableAttributes')) {
+            return $panel->getGloballySearchableAttributes();
+        }
+
         return ['title', 'content'];
     }
 
@@ -43,9 +49,28 @@ class DocumentationResource extends Resource
 
     public static function getGlobalSearchResultTitle(Model $record): string | Htmlable
     {
+        $panel = KnowledgeBase::panel();
+
+        if (method_exists($panel, 'getGlobalSearchResultTitleCallback') &&
+            ($callback = $panel->getGlobalSearchResultTitleCallback())) {
+            return $callback($record);
+        }
+
         return str($record->slug)
             ->replace('/', ' -> ')
-        ;
+            ;
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        $panel = KnowledgeBase::panel();
+
+        if (method_exists($panel, 'getGlobalSearchResultDetailsCallback') &&
+            ($callback = $panel->getGlobalSearchResultDetailsCallback())) {
+            return $callback($record);
+        }
+        
+        return [];
     }
 
     public static function resolveRecordRouteBinding(int | string $key): ?Model
