@@ -66,8 +66,9 @@ class DocumentationResource extends Resource
     {
         $panel = KnowledgeBase::panel();
 
-        if (method_exists($panel, 'getGlobalSearchResultDetailsCallback') &&
-            ($callback = $panel->getGlobalSearchResultDetailsCallback())) {
+        $callback = $panel->getGlobalSearchResultDetailsCallback();
+
+        if ($callback) {
             return $callback($record);
         }
         
