@@ -13,6 +13,7 @@ use Filament\Navigation\NavigationGroup;
 use Filament\Navigation\NavigationItem;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
+use Filament\Panel\Concerns\HasComponents;
 use Filament\Support\Assets\Theme;
 use Filament\Support\Enums\Platform;
 use Filament\View\PanelsRenderHook;
@@ -46,6 +47,7 @@ class KnowledgeBasePanel extends Panel
     use CanDisableDefaultClasses;
     use HasAnchorSymbol;
     use HasArticleClass;
+    use HasComponents;
 
     protected bool $guestAccess = false;
     protected static bool $syntaxHighlighting = false;
@@ -259,8 +261,15 @@ class KnowledgeBasePanel extends Panel
                     )
             )
 
-            // TODO: Replace with ->navigationItems and ->navigationGroups to support custom pages
-            ->navigation($this->makeNavigation(...))
+            ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
+                // First add all standard navigation items
+                foreach ($this->getNavigationItems() as $navigationItem) {
+                    $builder->item($navigationItem);
+                }
+                
+                // Then add the dynamic KB navigation items
+                return $this->addKnowledgeBaseNavigation($builder);
+            })
         ;
     }
 
@@ -289,7 +298,7 @@ class KnowledgeBasePanel extends Panel
         ;
     }
 
-    protected function makeNavigation(NavigationBuilder $builder): NavigationBuilder
+    protected function addKnowledgeBaseNavigation(NavigationBuilder $builder): NavigationBuilder
     {
         $documentables = KnowledgeBase::model()::all();
 
