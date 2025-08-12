@@ -6,6 +6,7 @@ use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Guava\FilamentKnowledgeBase\Contracts\Documentable;
 use Guava\FilamentKnowledgeBase\Facades\KnowledgeBase;
+use Illuminate\Support\HtmlString;
 
 class HelpAction extends Action
 {
@@ -25,7 +26,7 @@ class HelpAction extends Action
     {
         $documentable = KnowledgeBase::documentable($documentable);
 
-        return HelpAction::make("help.{$documentable->getId()}")
+        return static::make("help.{$documentable->getId()}")
             ->label($documentable->getTitle())
             ->icon($documentable->getIcon())
             ->when(
