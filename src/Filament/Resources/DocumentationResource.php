@@ -81,7 +81,7 @@ class DocumentationResource extends Resource
         // TODO: First try to load it from a standalone (App/Docs) class
         $record = parent::resolveRecordRouteBinding($key);
 
-        if (! $record?->isActive()) {
+        if (! $record?->isRegistered()) {
             return null;
         }
 
