@@ -2,8 +2,8 @@
 
 namespace Guava\FilamentKnowledgeBase\Actions\Forms\Components;
 
+use Filament\Actions\Action;
 use Filament\Facades\Filament;
-use Filament\Forms\Components\Actions\Action;
 use Guava\FilamentKnowledgeBase\Contracts\Documentable;
 use Guava\FilamentKnowledgeBase\Facades\KnowledgeBase;
 use Illuminate\Support\Arr;

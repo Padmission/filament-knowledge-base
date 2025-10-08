@@ -6,7 +6,7 @@ use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Guava\FilamentKnowledgeBase\Contracts\Documentable;
 use Guava\FilamentKnowledgeBase\Facades\KnowledgeBase;
-use Illuminate\Support\HtmlString;
+use Illuminate\Support\Js;
 
 class HelpAction extends Action
 {
@@ -32,7 +32,7 @@ class HelpAction extends Action
             ->when(
                 Filament::getPlugin('guava::filament-knowledge-base')->hasModalPreviews(),
                 fn (HelpAction $action) => $action
-                    ->alpineClickHandler('$dispatch("open-modal", {id: "' . $documentable->getId() . '"})')
+                    ->alpineClickHandler('$dispatch(\'open-modal\', ' . Js::from(['id' => $documentable->getId()]) . ')')
                     ->when(
                         Filament::getPlugin('guava::filament-knowledge-base')->hasSlideOverPreviews(),
                         fn (HelpAction $action) => $action->slideOver()
