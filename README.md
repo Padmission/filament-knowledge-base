@@ -42,6 +42,12 @@ sponsorship will assist us in continuous development and maintenance to keep our
 amount you contribute will greatly help towards reaching our goals. Join us in making this plugin even better and
 driving further innovation.
 
+## Requirements
+
+- PHP 8.2 or higher
+- Laravel 11.28 or higher
+- Filament 4.0 or 5.0 (supports both v4 with Livewire 3 and v5 with Livewire 4)
+
 ## Installation
 
 You can install the package via composer:
@@ -141,7 +147,7 @@ public function panel(Panel $panel): Panel
 
 ### Make sure you have a custom filament theme
 
-Check [here](https://filamentphp.com/docs/3.x/panels/themes#creating-a-custom-theme) how to create one.
+Check [here](https://filamentphp.com/docs/panels/themes#creating-a-custom-theme) how to create one.
 
 You can create one specifically for the knowledge base panel or if you want to have the same design as your main panel(
 s), you can simply reuse the vite theme from your panel.
