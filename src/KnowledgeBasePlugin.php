@@ -20,7 +20,7 @@ class KnowledgeBasePlugin implements Plugin
 
     protected bool $openDocumentationInNewTab = false;
 
-    protected string $helpMenuRenderHook = PanelsRenderHook::TOPBAR_END;
+    protected string $helpMenuRenderHook = PanelsRenderHook::USER_MENU_AFTER;
 
     public function helpMenuRenderHook(string $renderHook): static
     {

@@ -2,7 +2,7 @@
 
 namespace Guava\FilamentKnowledgeBase\Enums;
 
-use Filament\Pages\SubNavigationPosition;
+use Filament\Pages\Enums\SubNavigationPosition;
 
 enum TableOfContentsPosition
 {

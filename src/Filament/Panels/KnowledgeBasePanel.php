@@ -13,6 +13,7 @@ use Filament\Navigation\NavigationGroup;
 use Filament\Navigation\NavigationItem;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
+use Filament\Panel\Concerns\HasComponents;
 use Filament\Support\Assets\Theme;
 use Filament\Support\Enums\Platform;
 use Filament\View\PanelsRenderHook;
@@ -46,20 +47,57 @@ class KnowledgeBasePanel extends Panel
     use CanDisableDefaultClasses;
     use HasAnchorSymbol;
     use HasArticleClass;
+    use HasComponents;
 
     protected bool $guestAccess = false;
-
     protected static bool $syntaxHighlighting = false;
-
     protected bool $disableTableOfContents = false;
-
     protected TableOfContentsPosition $tableOfContentsPosition = TableOfContentsPosition::End;
+    protected array $globallySearchableAttributes = ['title', 'content'];
+    protected $globalSearchResultTitleCallback = null;
+    protected $globalSearchResultDetailsCallback = null;
 
     public function __construct()
     {
         $this->id(
             config('filament-knowledge-base.panel.id', 'knowledge-base')
         );
+    }
+
+    public function globallySearchableAttributes(array $attributes): static
+    {
+        $this->globallySearchableAttributes = $attributes;
+
+        return $this;
+    }
+
+    public function getGloballySearchableAttributes(): array
+    {
+        return $this->evaluate($this->globallySearchableAttributes);
+    }
+
+    public function globalSearchResultTitle(callable $callback): static
+    {
+        $this->globalSearchResultTitleCallback = $callback;
+
+        return $this;
+    }
+
+    public function getGlobalSearchResultTitleCallback(): ?callable
+    {
+        return $this->globalSearchResultTitleCallback;
+    }
+
+    public function globalSearchResultDetails(callable $callback): static
+    {
+        $this->globalSearchResultDetailsCallback = $callback;
+
+        return $this;
+    }
+
+    public function getGlobalSearchResultDetailsCallback(): ?callable
+    {
+        return $this->globalSearchResultDetailsCallback;
     }
 
     public function guestAccess(bool $condition = true): static
@@ -223,8 +261,15 @@ class KnowledgeBasePanel extends Panel
                     )
             )
 
-            // TODO: Replace with ->navigationItems and ->navigationGroups to support custom pages
-            ->navigation($this->makeNavigation(...))
+            ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
+                // First add all standard navigation items
+                foreach ($this->getNavigationItems() as $navigationItem) {
+                    $builder->item($navigationItem);
+                }
+                
+                // Then add the dynamic KB navigation items
+                return $this->addKnowledgeBaseNavigation($builder);
+            })
         ;
     }
 
@@ -253,7 +298,7 @@ class KnowledgeBasePanel extends Panel
         ;
     }
 
-    protected function makeNavigation(NavigationBuilder $builder): NavigationBuilder
+    protected function addKnowledgeBaseNavigation(NavigationBuilder $builder): NavigationBuilder
     {
         $documentables = KnowledgeBase::model()::all();
 
