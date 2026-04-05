@@ -66,6 +66,7 @@ class HelpMenu extends Component implements HasActions, HasForms
     {
         return HelpAction::forDocumentable($this->getDocumentation()->first())
             ->generic()
+            ->labeledFrom('md')
             ->openUrlInNewTab($this->shouldOpenDocumentationInNewTab)
         ;
     }
@@ -78,6 +79,7 @@ class HelpMenu extends Component implements HasActions, HasForms
             ->iconSize('lg')
             ->color('gray')
             ->button()
+            ->labeledFrom('md')
         ;
     }
 
