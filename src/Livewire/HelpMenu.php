@@ -2,18 +2,16 @@
 
 namespace Guava\FilamentKnowledgeBase\Livewire;
 
-use Arr;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Facades\Filament;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Resources\Pages\Page;
 use Guava\FilamentKnowledgeBase\Actions\HelpAction;
 use Guava\FilamentKnowledgeBase\Contracts\Documentable;
-use Guava\FilamentKnowledgeBase\Contracts\HasKnowledgeBase;
 use Guava\FilamentKnowledgeBase\Facades\KnowledgeBase;
+use Guava\FilamentKnowledgeBase\Support\DocumentationResolver;
 use Livewire\Component;
 
 class HelpMenu extends Component implements HasActions, HasForms
@@ -25,17 +23,10 @@ class HelpMenu extends Component implements HasActions, HasForms
 
     protected bool $shouldOpenDocumentationInNewTab;
 
-    public function mount(): void
+    public function mount(?array $documentation = null): void
     {
-        $controller = request()->route()->controller;
-
         $this->shouldOpenDocumentationInNewTab = Filament::getPlugin('guava::filament-knowledge-base')->shouldOpenDocumentationInNewTab();
-
-        $this->documentation = Arr::wrap(match (true) {
-            $controller instanceof HasKnowledgeBase => $controller::getDocumentation(),
-            $controller instanceof Page && in_array(HasKnowledgeBase::class, class_implements($controller::getResource())) => $controller::getResource()::getDocumentation(),
-            default => [],
-        });
+        $this->documentation = $documentation ?? DocumentationResolver::resolve(request());
     }
 
     public function getDocumentation()
@@ -48,7 +39,6 @@ class HelpMenu extends Component implements HasActions, HasForms
     public function actions(): array
     {
         return $this->getDocumentation()
-//            ->map(fn (string $class) => KnowledgeBasePanel::getDocumentationAction($class))
             ->map(
                 fn (Documentable $documentable) => HelpAction::forDocumentable($documentable)
                     ->openUrlInNewTab($this->shouldOpenDocumentationInNewTab)

@@ -8,6 +8,7 @@ use Filament\View\PanelsRenderHook;
 use Guava\FilamentKnowledgeBase\Concerns\CanDisableKnowledgeBasePanelButton;
 use Guava\FilamentKnowledgeBase\Concerns\CanDisableModalLinks;
 use Guava\FilamentKnowledgeBase\Concerns\HasModalPreviews;
+use Guava\FilamentKnowledgeBase\Support\DocumentationResolver;
 use Illuminate\Support\Facades\Blade;
 
 class KnowledgeBasePlugin implements Plugin
@@ -68,7 +69,10 @@ class KnowledgeBasePlugin implements Plugin
         $panel
             ->renderHook(
                 $this->getHelpMenuRenderHook(),
-                fn (): string => Blade::render('@livewire(\'help-menu\')'),
+                fn (): string => Blade::render(
+                    '@livewire(\'help-menu\', [\'documentation\' => $documentation])',
+                    ['documentation' => DocumentationResolver::resolve(request())],
+                ),
             )
             ->when(
                 ! $this->shouldDisableModalLinks(),
