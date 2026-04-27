@@ -43,7 +43,7 @@ class HelpMenu extends Component implements HasActions, HasForms
                 fn (Documentable $documentable) => HelpAction::forDocumentable($documentable)
                     ->openUrlInNewTab($this->shouldOpenDocumentationInNewTab)
             )
-            ->toArray()
+            ->all()
         ;
     }
 
