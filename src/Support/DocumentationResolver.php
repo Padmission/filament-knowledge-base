@@ -29,7 +29,20 @@ class DocumentationResolver
             return $controller;
         }
 
-        return static::resolveControllerFromReferer($request);
+        // Only Livewire update requests may borrow the referer's controller: there the
+        // current route is the livewire/update endpoint, so the referer is the only way
+        // back to the page being viewed. On a full page load, falling back would show a
+        // doc-less page the previous page's documentation.
+        if (static::isLivewireUpdateRequest($request)) {
+            return static::resolveControllerFromReferer($request);
+        }
+
+        return null;
+    }
+
+    protected static function isLivewireUpdateRequest(Request $request): bool
+    {
+        return $request->hasHeader('X-Livewire');
     }
 
     protected static function resolveControllerFromReferer(Request $request): mixed
